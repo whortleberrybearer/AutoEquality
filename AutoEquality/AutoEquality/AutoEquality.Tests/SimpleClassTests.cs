@@ -9,11 +9,13 @@
         [Fact]
         public void MatchingValuesShouldEqualTrue()
         {
-            var value = new Fixture().Create<string>();
-            var simpleClass1 = new SinglePropertyClass() { Property = value };
-            var simpleClass2 = new SinglePropertyClass() { Property = value };
+            var value1 = new Fixture().Create<string>();
+            var value2 = new Fixture().Create<string>();
+            var value3 = new Fixture().Create<string>();
+            var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
+            var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
 
-            var comparer = new AutoEqualityComparer<SinglePropertyClass>();
+            var comparer = new AutoEqualityComparer<MultiPropertyClass>();
 
             var result = comparer.Equals(simpleClass1, simpleClass2);
 
@@ -23,20 +25,26 @@
         [Fact]
         public void NonMatchingValuesShouldEqualTrue()
         {
-            var value = new Fixture().Create<string>();
-            var simpleClass1 = new SinglePropertyClass() { Property = value.ToLower() };
-            var simpleClass2 = new SinglePropertyClass() { Property = value.ToUpper() };
+            var value1 = new Fixture().Create<string>();
+            var value2 = new Fixture().Create<string>();
+            var value3 = new Fixture().Create<string>();
+            var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
+            var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
 
-            var comparer = new AutoEqualityComparer<SinglePropertyClass>();
+            var comparer = new AutoEqualityComparer<MultiPropertyClass>();
 
             var result = comparer.Equals(simpleClass1, simpleClass2);
 
             result.ShouldBeFalse();
         }
 
-        internal class SinglePropertyClass
+        internal class MultiPropertyClass
         {
-            public string Property { get; set; }
+            public string Property1 { get; set; }
+
+            public string Property2 { get; set; }
+
+            public string Property3 { get; set; }
         }
     }
 }
