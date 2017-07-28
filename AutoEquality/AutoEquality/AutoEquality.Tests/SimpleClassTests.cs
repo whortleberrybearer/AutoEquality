@@ -6,56 +6,156 @@
 
     public class SimpleClassTests
     {
-        [Theory]
-        [InlineAutoData]
-        public void IgnoredMultipleValueShouldNotBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+        public class IngoreTests
         {
-            var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3 };
-            var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3 };
+            [Theory]
+            [InlineAutoData]
+            public void MultipleValueShouldNotBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3 };
 
-            sut.Ignore(a => a.Property2).Ignore(a => a.Property1);
+                sut.IncludeAll().Ignore(a => a.Property2).Ignore(a => a.Property1);
 
-            var result = sut.Equals(simpleClass1, simpleClass2);
+                var result = sut.Equals(simpleClass1, simpleClass2);
 
-            result.ShouldBeTrue();
+                result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
+            public void SingleValueShouldNotBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToUpper(), Property3 = value3 };
+
+                sut.IncludeAll().Ignore(a => a.Property2);
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
         }
 
-        [Theory]
-        [InlineAutoData]
-        public void IgnoredSingleValueShouldNotBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+        public class DefaultConstructionTests
         {
-            var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
-            var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToUpper(), Property3 = value3 };
+            [Theory]
+            [InlineAutoData]
+            public void MatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
 
-            sut.Ignore(a => a.Property2);
+                var result = sut.Equals(simpleClass1, simpleClass2);
 
-            var result = sut.Equals(simpleClass1, simpleClass2);
+                result.ShouldBeTrue();
+            }
 
-            result.ShouldBeTrue();
+            [Theory]
+            [InlineAutoData]
+            public void NonMatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3.ToUpper() };
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                // The default construction does not setup anything, so a comparison of not properties should be true.
+                result.ShouldBeTrue();
+            }
         }
 
-        [Theory]
-        [InlineAutoData]
-        public void MatchingValuesShouldEqualTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+        public class IncludeAllTests
         {
-            var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
-            var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
+            [Theory]
+            [InlineAutoData]
+            public void MatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
 
-            var result = sut.Equals(simpleClass1, simpleClass2);
+                sut.IncludeAll();
 
-            result.ShouldBeTrue();
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
+            public void NonMatchingValuesShouldBeFalse(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3.ToUpper() };
+
+                sut.IncludeAll();
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeFalse();
+            }
         }
 
-        [Theory]
-        [InlineAutoData]
-        public void NonMatchingValuesShouldEqualTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+        public class IncludeTests
         {
-            var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
-            var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3.ToUpper() };
+            [Theory]
+            [InlineAutoData]
+            public void MultipleValueShouldBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToUpper(), Property3 = value3 };
 
-            var result = sut.Equals(simpleClass1, simpleClass2);
+                sut.Include(a => a.Property3).Include(a => a.Property1);
 
-            result.ShouldBeFalse();
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
+            public void SingleValueShouldBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2, Property3 = value3.ToLower() };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2, Property3 = value3.ToUpper() };
+
+                sut.Include(a => a.Property2);
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
+        }
+
+        public class IgnoreAllTests
+        {
+            [Theory]
+            [InlineAutoData]
+            public void MatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
+
+                sut.IgnoreAll();
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
+            public void NonMatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3.ToUpper() };
+
+                sut.IgnoreAll();
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
         }
 
         public class MultiPropertyClass
