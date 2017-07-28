@@ -10,7 +10,6 @@
     {
         private List<PropertyInfo> properties = new List<PropertyInfo>();
 
-
         public bool Equals(T x, T y)
         {
             var result = true;
@@ -45,7 +44,7 @@
         {
             foreach (var property in this.properties)
             {
-                if (property.Name == FindPropertyInfo(ignoredProperty.Body).Name)
+                if (property.Name == FindPropertyInfo(ignoredProperty).Name)
                 {
                     this.properties.Remove(property);
 
@@ -77,8 +76,20 @@
 
         public AutoEqualityComparer<T> IncludeAll()
         {
-            // TODO: Handle properties that have already beein included.
-            this.properties.AddRange(typeof(T).GetProperties());
+            if (!this.properties.Any())
+            {
+                this.properties.AddRange(typeof(T).GetProperties());
+            }
+            else
+            {
+                foreach (var propertyInfo in typeof(T).GetProperties())
+                {
+                    if (!this.properties.Any(a => a.Name == propertyInfo.Name))
+                    {
+                        this.properties.Add(propertyInfo);
+                    }
+                }
+            }
 
             return this;
         }
@@ -86,7 +97,7 @@
         private static PropertyInfo FindPropertyInfo(Expression expression)
         {
             // TODO: Need to handle this better.
-            return (expression as MemberExpression).Member as PropertyInfo;
+            return ((expression as LambdaExpression).Body as MemberExpression).Member as PropertyInfo;
         }
     }
 }
