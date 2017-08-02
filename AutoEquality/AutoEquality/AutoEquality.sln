@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoEquality.Tests", "AutoEquality.Tests\AutoEquality.Tests.csproj", "{502A2024-BB4E-4036-A2F1-48FAAAEDFF8B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoEquality", "AutoEquality\AutoEquality.csproj", "{BDF54F69-6F98-44DC-83BE-492EF15F2F43}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D0F3070-071E-4FCF-8866-60AF177BED0C}"
+	ProjectSection(SolutionItems) = preProject
+		AutoEquality.ruleset = AutoEquality.ruleset
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
