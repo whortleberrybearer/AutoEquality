@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AutoEqualityComparer.cs" />
     <Compile Include="AutoEqualityFactory.cs" />
+    <Compile Include="DefaultEqualityComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

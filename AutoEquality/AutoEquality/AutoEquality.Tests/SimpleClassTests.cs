@@ -15,7 +15,7 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3 };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3 };
 
-                sut.IncludeAll().Ignore(a => a.Property2).Ignore(a => a.Property1);
+                sut.Ignore(a => a.Property2).Ignore(a => a.Property1);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
@@ -29,7 +29,7 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToUpper(), Property3 = value3 };
 
-                sut.IncludeAll().Ignore(a => a.Property2);
+                sut.Ignore(a => a.Property2);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
@@ -53,15 +53,15 @@
 
             [Theory]
             [InlineAutoData]
-            public void NonMatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            public void NonMatchingValuesShouldBeFalse(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
             {
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3.ToLower() };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3.ToUpper() };
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
-                // The default construction does not setup anything, so a comparison of not properties should be true.
-                result.ShouldBeTrue();
+                // The default construction sets up all properties, so a non match will fail.
+                result.ShouldBeFalse();
             }
         }
 
@@ -105,7 +105,7 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToUpper(), Property3 = value3 };
 
-                sut.Include(a => a.Property3).Include(a => a.Property1);
+                sut.IgnoreAll().Include(a => a.Property3).Include(a => a.Property1);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
@@ -119,7 +119,7 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2, Property3 = value3.ToLower() };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2, Property3 = value3.ToUpper() };
 
-                sut.Include(a => a.Property2);
+                sut.IgnoreAll().Include(a => a.Property2);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
