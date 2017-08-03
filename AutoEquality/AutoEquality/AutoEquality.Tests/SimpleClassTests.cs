@@ -114,7 +114,8 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2.ToLower(), Property3 = value3 };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2.ToUpper(), Property3 = value3 };
 
-                sut.Without(a => a.Property2).Without(a => a.Property1);
+                sut.Without(a => a.Property2);
+                sut.Without(a => a.Property1);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
@@ -145,7 +146,9 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToUpper(), Property3 = value3 };
 
-                sut.WithoutAll().With(a => a.Property3).With(a => a.Property1);
+                sut.WithoutAll();
+                sut.With(a => a.Property3);
+                sut.With(a => a.Property1);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
@@ -159,7 +162,8 @@
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2, Property3 = value3.ToLower() };
                 var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2, Property3 = value3.ToUpper() };
 
-                sut.WithoutAll().With(a => a.Property2);
+                sut.WithoutAll();
+                sut.With(a => a.Property2);
 
                 var result = sut.Equals(simpleClass1, simpleClass2);
 

@@ -7,18 +7,38 @@
     using System.Linq.Expressions;
     using System.Reflection;
 
+    /// <summary>
+    /// Comparison class for comparing if two objects match.
+    /// </summary>
+    /// <typeparam name="T">The type of objects to compare.</typeparam>
+    /// <seealso cref="System.Collections.IEqualityComparer" />
+    /// <seealso cref="System.Collections.Generic.IEqualityComparer{T}" />
     // Need to implement the non generic version, as this is casted to when handling deep comparisons.
     public class AutoEqualityComparer<T> : IEqualityComparer, IEqualityComparer<T>
     {
         private static readonly DefaultEqualityComparer DefaultComparer = new DefaultEqualityComparer();
         private List<PropertyInfo> properties = new List<PropertyInfo>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutoEqualityComparer{T}"/> class.
+        /// </summary>
+        /// <remarks>
+        /// By default, this will add all properties to the equality comparison.
+        /// </remarks>
         public AutoEqualityComparer()
         {
             // Including all the properties by default makes it a lot easier when handling types during a deep comparison.
             this.WithAll();
         }
 
+        /// <summary>
+        /// Determines whether the specified objects are equal.
+        /// </summary>
+        /// <param name="x">The first object of type <paramref name="T" /> to compare.</param>
+        /// <param name="y">The second object of type <paramref name="T" /> to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the specified objects are equal; otherwise, <c>false</c>.
+        /// </returns>
         public bool Equals(T x, T y)
         {
             // Quick initial check.  If the objects are the same instance, then there is no need to do any other checking.
@@ -32,11 +52,26 @@
             return result;
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="x">The <see cref="object" /> to compare with this instance.</param>
+        /// <param name="y">The y.</param>
+        /// <returns>
+        /// <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public new bool Equals(object x, object y)
         {
             return this.Equals((T)x, (T)y);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+        /// </returns>
         public int GetHashCode(T obj)
         {
             var result = 0;
@@ -50,12 +85,24 @@
             return result;
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+        /// </returns>
         public int GetHashCode(object obj)
         {
             return this.GetHashCode((T)obj);
         }
 
-        public AutoEqualityComparer<T> With<TProperty>(Expression<Func<T, TProperty>> includedProperty)
+        /// <summary>
+        /// Includes the specified property in the comparison.
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="includedProperty">The included property.</param>
+        public void With<TProperty>(Expression<Func<T, TProperty>> includedProperty)
         {
             var memberInfo = FindPropertyInfo(includedProperty);
 
@@ -63,11 +110,12 @@
             {
                 this.properties.Add(memberInfo);
             }
-
-            return this;
         }
 
-        public AutoEqualityComparer<T> WithAll()
+        /// <summary>
+        /// Includes all properties in the comparison.
+        /// </summary>
+        public void WithAll()
         {
             if (!this.properties.Any())
             {
@@ -83,11 +131,14 @@
                     }
                 }
             }
-
-            return this;
         }
 
-        public AutoEqualityComparer<T> Without<TProperty>(Expression<Func<T, TProperty>> ignoredProperty)
+        /// <summary>
+        /// Ignores the specified property from the comparison.
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="ignoredProperty">The ignored property.</param>
+        public void Without<TProperty>(Expression<Func<T, TProperty>> ignoredProperty)
         {
             foreach (var property in this.properties)
             {
@@ -98,15 +149,14 @@
                     break;
                 }
             }
-
-            return this;
         }
 
-        public AutoEqualityComparer<T> WithoutAll()
+        /// <summary>
+        /// Excludes all properties from the comparison.
+        /// </summary>
+        public void WithoutAll()
         {
             this.properties.Clear();
-
-            return this;
         }
 
         private static PropertyInfo FindPropertyInfo(Expression expression)
