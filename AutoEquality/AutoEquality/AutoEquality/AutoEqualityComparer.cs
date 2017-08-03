@@ -10,7 +10,7 @@
     // Need to implement the non generic version, as this is casted to when handling deep comparisons.
     public class AutoEqualityComparer<T> : IEqualityComparer, IEqualityComparer<T>
     {
-        private static readonly DefaultEqualityComparer DefaultEqualityComparer = new DefaultEqualityComparer();
+        private static readonly DefaultEqualityComparer DefaultComparer = new DefaultEqualityComparer();
         private List<PropertyInfo> properties = new List<PropertyInfo>();
 
         public AutoEqualityComparer()
@@ -26,31 +26,7 @@
 
             if (!result)
             {
-                result = true;
-
-                foreach (var property in this.properties)
-                {
-                    IEqualityComparer comparer;
-
-                    // If the type implements IEquatable<T>, use this for a comparison.  This handles the language type, e.g. string, int, etc.
-                    if (ImplementsIEquatable(property.PropertyType))
-                    {
-                        comparer = DefaultEqualityComparer;
-                    }
-                    else
-                    {
-                        // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
-                        var comparerType = typeof(AutoEqualityComparer<>).MakeGenericType(property.PropertyType);
-                        comparer = Activator.CreateInstance(comparerType) as IEqualityComparer;
-                    }
-
-                    if (!comparer.Equals(property.GetValue(x), property.GetValue(y)))
-                    {
-                        result = false;
-
-                        break;
-                    }
-                }
+                result = this.CompareProperties(x, y);
             }
 
             return result;
@@ -144,6 +120,37 @@
             return type
                 .GetInterfaces()
                 .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEquatable<>));
+        }
+
+        private bool CompareProperties(T x, T y)
+        {
+            var result = true;
+
+            foreach (var property in this.properties)
+            {
+                IEqualityComparer comparer;
+
+                // If the type implements IEquatable<T>, use this for a comparison.  This handles the language type, e.g. string, int, etc.
+                if (ImplementsIEquatable(property.PropertyType))
+                {
+                    comparer = DefaultComparer;
+                }
+                else
+                {
+                    // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
+                    var comparerType = typeof(AutoEqualityComparer<>).MakeGenericType(property.PropertyType);
+                    comparer = Activator.CreateInstance(comparerType) as IEqualityComparer;
+                }
+
+                if (!comparer.Equals(property.GetValue(x), property.GetValue(y)))
+                {
+                    result = false;
+
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }

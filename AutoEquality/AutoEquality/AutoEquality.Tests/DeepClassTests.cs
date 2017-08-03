@@ -4,82 +4,78 @@
     using Shouldly;
     using Xunit;
 
-    public class NestedClassTests
+    public class DeepClassTests
     {
         [Theory]
         [InlineAutoData]
-        public void MatchingNestedClassShouldBeTrue(string value1, string value2, string value3, string value4, AutoEqualityComparer<NestedClass1> sut)
+        public void MatchingNestedClassShouldBeTrue(string value1, string value2, string value3, string value4, AutoEqualityComparer<DeepClass1> sut)
         {
-            var nestedClass1 = new NestedClass1()
+            var deepClass1 = new DeepClass1()
             {
                 Property1 = value1,
                 Property2 = value2,
-                Nested = new NestedClass2()
+                Nested = new DeepClass2()
                 {
                     Property3 = value3,
                     Property4 = value4
                 }
             };
-            var nestedClass2 = new NestedClass1()
+            var deepClass2 = new DeepClass1()
             {
                 Property1 = value1,
                 Property2 = value2,
-                Nested = new NestedClass2()
+                Nested = new DeepClass2()
                 {
                     Property3 = value3,
                     Property4 = value4
                 }
             };
 
-            sut.IncludeAll();
-
-            var result = sut.Equals(nestedClass1, nestedClass2);
+            var result = sut.Equals(deepClass1, deepClass2);
 
             result.ShouldBeTrue();
         }
 
         [Theory]
         [InlineAutoData]
-        public void NonMatchingNestedClassShouldBeFalse(string value1, string value2, string value3, string value4, AutoEqualityComparer<NestedClass1> sut)
+        public void NonMatchingNestedClassShouldBeFalse(string value1, string value2, string value3, string value4, AutoEqualityComparer<DeepClass1> sut)
         {
-            var nestedClass1 = new NestedClass1()
+            var deepClass1 = new DeepClass1()
             {
                 Property1 = value1,
                 Property2 = value2,
-                Nested = new NestedClass2()
+                Nested = new DeepClass2()
                 {
                     Property3 = value3.ToUpper(),
                     Property4 = value4.ToUpper()
                 }
             };
-            var nestedClass2 = new NestedClass1()
+            var deepClass2 = new DeepClass1()
             {
                 Property1 = value1,
                 Property2 = value2,
-                Nested = new NestedClass2()
+                Nested = new DeepClass2()
                 {
                     Property3 = value3.ToLower(),
                     Property4 = value4.ToLower()
                 }
             };
 
-            sut.IncludeAll();
-
-            var result = sut.Equals(nestedClass1, nestedClass2);
+            var result = sut.Equals(deepClass1, deepClass2);
 
             result.ShouldBeFalse();
         }
 
-        public class NestedClass1
+        public class DeepClass1
         {
-            public NestedClass2 Nested { get; set; }
+            public DeepClass2 Nested { get; set; }
 
             public string Property1 { get; set; }
 
             public string Property2 { get; set; }
         }
 
-        public class NestedClass2
+        public class DeepClass2
         {
             public string Property3 { get; set; }
 
