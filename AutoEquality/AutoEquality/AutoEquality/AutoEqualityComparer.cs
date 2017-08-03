@@ -16,7 +16,7 @@
         public AutoEqualityComparer()
         {
             // Including all the properties by default makes it a lot easier when handling types during a deep comparison.
-            this.IncludeAll();
+            this.WithAll();
         }
 
         public bool Equals(T x, T y)
@@ -55,29 +55,7 @@
             return this.GetHashCode((T)obj);
         }
 
-        public AutoEqualityComparer<T> Ignore<TProperty>(Expression<Func<T, TProperty>> ignoredProperty)
-        {
-            foreach (var property in this.properties)
-            {
-                if (property.Name == FindPropertyInfo(ignoredProperty).Name)
-                {
-                    this.properties.Remove(property);
-
-                    break;
-                }
-            }
-
-            return this;
-        }
-
-        public AutoEqualityComparer<T> IgnoreAll()
-        {
-            this.properties.Clear();
-
-            return this;
-        }
-
-        public AutoEqualityComparer<T> Include<TProperty>(Expression<Func<T, TProperty>> includedProperty)
+        public AutoEqualityComparer<T> With<TProperty>(Expression<Func<T, TProperty>> includedProperty)
         {
             var memberInfo = FindPropertyInfo(includedProperty);
 
@@ -89,7 +67,7 @@
             return this;
         }
 
-        public AutoEqualityComparer<T> IncludeAll()
+        public AutoEqualityComparer<T> WithAll()
         {
             if (!this.properties.Any())
             {
@@ -105,6 +83,28 @@
                     }
                 }
             }
+
+            return this;
+        }
+
+        public AutoEqualityComparer<T> Without<TProperty>(Expression<Func<T, TProperty>> ignoredProperty)
+        {
+            foreach (var property in this.properties)
+            {
+                if (property.Name == FindPropertyInfo(ignoredProperty).Name)
+                {
+                    this.properties.Remove(property);
+
+                    break;
+                }
+            }
+
+            return this;
+        }
+
+        public AutoEqualityComparer<T> WithoutAll()
+        {
+            this.properties.Clear();
 
             return this;
         }
