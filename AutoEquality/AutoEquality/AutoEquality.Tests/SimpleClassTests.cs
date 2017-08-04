@@ -1,5 +1,6 @@
 ﻿namespace AutoEquality.Tests
 {
+    using AutoEquality.Tests.HelperClasses;
     using Ploeh.AutoFixture.Xunit2;
     using Shouldly;
     using Xunit;
@@ -32,15 +33,6 @@
                 // The default construction sets up all properties, so a non match will fail.
                 result.ShouldBeFalse();
             }
-        }
-
-        public class MultiPropertyClass
-        {
-            public string Property1 { get; set; }
-
-            public string Property2 { get; set; }
-
-            public string Property3 { get; set; }
         }
 
         public class WithAllTests
@@ -124,6 +116,13 @@
 
             [Theory]
             [InlineAutoData]
+            public void NullPropertyShouldThrowArguementNullException(AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                throw new System.Exception();
+            }
+
+            [Theory]
+            [InlineAutoData]
             public void SingleValueShouldNotBeCompared(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
             {
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2.ToLower(), Property3 = value3 };
@@ -153,6 +152,13 @@
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
                 result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
+            public void NullPropertyShouldThrowArguementNullException(AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                throw new System.Exception();
             }
 
             [Theory]

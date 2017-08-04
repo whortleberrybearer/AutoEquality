@@ -1,5 +1,6 @@
 ﻿namespace AutoEquality.Tests
 {
+    using AutoEquality.Tests.HelperClasses;
     using Ploeh.AutoFixture.Xunit2;
     using Shouldly;
     using Xunit;
@@ -64,22 +65,6 @@
             var result = sut.Equals(deepClass1, deepClass2);
 
             result.ShouldBeFalse();
-        }
-
-        public class DeepClass1
-        {
-            public DeepClass2 Deep { get; set; }
-
-            public string Property1 { get; set; }
-
-            public string Property2 { get; set; }
-        }
-
-        public class DeepClass2
-        {
-            public string Property3 { get; set; }
-
-            public string Property4 { get; set; }
         }
     }
 }

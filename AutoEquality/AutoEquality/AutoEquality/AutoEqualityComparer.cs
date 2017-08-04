@@ -46,7 +46,14 @@
 
             if (!result)
             {
-                result = this.CompareProperties(x, y);
+                // Second escape check.  If one of the items is null and the other is not, there is no match.
+                result = (x != null) && (y != null);
+
+                if (result)
+                {
+                    // Both items are defined, so do configured comparison check.
+                    result = this.CompareProperties(x, y);
+                }
             }
 
             return result;
