@@ -1,5 +1,7 @@
 ﻿namespace AutoEquality.Tests
 {
+    using System;
+    using System.Linq.Expressions;
     using AutoEquality.Tests.HelperClasses;
     using Ploeh.AutoFixture.Xunit2;
     using Shouldly;
@@ -116,9 +118,9 @@
 
             [Theory]
             [InlineAutoData]
-            public void NullPropertyShouldThrowArguementNullException(AutoEqualityComparer<MultiPropertyClass> sut)
+            public void NullPropertyShouldThrowArgumentNullException(AutoEqualityComparer<MultiPropertyClass> sut)
             {
-                throw new System.Exception();
+                Should.Throw<ArgumentNullException>(() => sut.With((Expression<Func<MultiPropertyClass, object>>)null));
             }
 
             [Theory]
@@ -156,9 +158,9 @@
 
             [Theory]
             [InlineAutoData]
-            public void NullPropertyShouldThrowArguementNullException(AutoEqualityComparer<MultiPropertyClass> sut)
+            public void NullPropertyShouldThrowArgumentNullException(AutoEqualityComparer<MultiPropertyClass> sut)
             {
-                throw new System.Exception();
+                Should.Throw<ArgumentNullException>(() => sut.With((Expression<Func<MultiPropertyClass, object>>)null));
             }
 
             [Theory]
