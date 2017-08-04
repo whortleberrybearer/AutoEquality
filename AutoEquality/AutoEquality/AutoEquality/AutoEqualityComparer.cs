@@ -112,6 +112,11 @@
             }
         }
 
+        public void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> includedProperty, bool inAnyOrder)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Includes all properties in the comparison.
         /// </summary>
@@ -172,6 +177,13 @@
                 .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEquatable<>));
         }
 
+        private static bool ImplementsIEnumerable(Type type)
+        {
+            return type
+                .GetInterfaces()
+                .Contains(typeof(IEnumerable));
+        }
+
         private bool CompareProperties(T x, T y)
         {
             var result = true;
@@ -184,6 +196,18 @@
                 if (ImplementsIEquatable(property.PropertyType))
                 {
                     comparer = DefaultComparer;
+                }
+                else if (ImplementsIEnumerable(property.PropertyType))
+                {
+                    var xEnumerable = property.GetValue()
+                    //foreach (var something in )
+                    //{
+
+                    //}
+
+                    //IEnumerable s;
+                    
+                    comparer = null;
                 }
                 else
                 {

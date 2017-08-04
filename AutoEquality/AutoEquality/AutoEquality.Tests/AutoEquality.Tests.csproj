@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeepClassTests.cs" />
+    <Compile Include="EnumerableTests.cs" />
     <Compile Include="SimpleClassTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
