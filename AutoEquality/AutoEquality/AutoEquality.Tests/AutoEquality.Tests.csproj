@@ -69,6 +69,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HelperClasses\EnumerableClass.cs" />
     <Compile Include="HelperClasses\DeepClass1.cs" />
     <Compile Include="HelperClasses\DeepClass2.cs" />
     <Compile Include="DeepClassTests.cs" />

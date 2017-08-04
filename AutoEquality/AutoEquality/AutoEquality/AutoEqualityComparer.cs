@@ -217,14 +217,26 @@
                 }
                 else if (ImplementsIEnumerable(property.PropertyType))
                 {
-                    var xEnumerable = property.GetValue()
-                    //foreach (var something in )
-                    //{
+                    var xEnumerator = ((IEnumerable)property.GetValue(x)).GetEnumerator();
+                    var yEnumerator = ((IEnumerable)property.GetValue(y)).GetEnumerator();
+                    bool xHasValue;
+                    bool yHasValue;
 
-                    //}
+                    do
+                    {
+                        xHasValue = xEnumerator.MoveNext();
+                        yHasValue = yEnumerator.MoveNext();
 
-                    //IEnumerable s;
-                    
+                        // If either item does not have a value, then the enumerable is a different size and therefore not matching.
+                        result = xHasValue == yHasValue;
+
+                        if (result)
+                        {
+                            // Compart the current obkects.
+                        }
+                    }
+                    while (!result || !xHasValue);
+
                     comparer = null;
                 }
                 else
