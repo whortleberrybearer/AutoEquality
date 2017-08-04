@@ -46,7 +46,15 @@
 
             if (!result)
             {
-                result = this.CompareProperties(x, y);
+                // Second escape check.  If one of the items is null and the other is not, there is no match.  But items being null
+                // is already handled by the ReferenceEquals check above.
+                result = (x != null) && (y != null);
+
+                if (result)
+                {
+                    // Both items are defined, so do configured comparison check.
+                    result = this.CompareProperties(x, y);
+                }
             }
 
             return result;
@@ -101,10 +109,15 @@
         /// Includes the specified property in the comparison.
         /// </summary>
         /// <typeparam name="TProperty">The type of the property.</typeparam>
-        /// <param name="includedProperty">The included property.</param>
-        public void With<TProperty>(Expression<Func<T, TProperty>> includedProperty)
+        /// <param name="withProperty">The property to include.</param>
+        public void With<TProperty>(Expression<Func<T, TProperty>> withProperty)
         {
-            var memberInfo = FindPropertyInfo(includedProperty);
+            if (withProperty == null)
+            {
+                throw new ArgumentNullException(nameof(withProperty));
+            }
+
+            var memberInfo = FindPropertyInfo(withProperty);
 
             if (!this.properties.Any(a => a.Name == memberInfo.Name))
             {
@@ -142,12 +155,17 @@
         /// Ignores the specified property from the comparison.
         /// </summary>
         /// <typeparam name="TProperty">The type of the property.</typeparam>
-        /// <param name="ignoredProperty">The ignored property.</param>
-        public void Without<TProperty>(Expression<Func<T, TProperty>> ignoredProperty)
+        /// <param name="withoutProperty">The property to exclude.</param>
+        public void Without<TProperty>(Expression<Func<T, TProperty>> withoutProperty)
         {
+            if (withoutProperty == null)
+            {
+                throw new ArgumentNullException(nameof(withoutProperty));
+            }
+
             foreach (var property in this.properties)
             {
-                if (property.Name == FindPropertyInfo(ignoredProperty).Name)
+                if (property.Name == FindPropertyInfo(withoutProperty).Name)
                 {
                     this.properties.Remove(property);
 
