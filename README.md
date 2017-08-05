@@ -1,7 +1,8 @@
 # AutoEquality
 Simple library to help generate IEqualityComparer&lt;T> instances.
 
-`public class Person
+```csharp
+public class Person
 {
     private static AutoEqualityComparer<Person> comparer = new AutoEqualityComparer<Person>();
     
@@ -25,4 +26,5 @@ Simple library to help generate IEqualityComparer&lt;T> instances.
     {
         return comparer.GetHashCode(this);
     }
-}`
+}
+```
