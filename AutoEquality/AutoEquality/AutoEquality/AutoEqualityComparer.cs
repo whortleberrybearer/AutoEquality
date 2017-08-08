@@ -188,11 +188,27 @@
             return ((expression as LambdaExpression).Body as MemberExpression).Member as PropertyInfo;
         }
 
-        private static bool ImplementsIEquatable(Type type)
+        private static IEqualityComparer GetComparerForType(Type propertyType)
         {
-            return type
-                .GetInterfaces()
-                .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEquatable<>));
+            IEqualityComparer comparer;
+
+            // If the type implements IEquatable<T>, use this for a comparison.  This handles the language type, e.g. string, int, etc.
+            if (ImplementsIEquatable(propertyType))
+            {
+                comparer = DefaultComparer;
+            }
+            else if (ImplementsIEnumerable(propertyType))
+            {
+                comparer = new EnumerableComparer(GetComparerForType(propertyType.GenericTypeArguments.First()));
+            }
+            else
+            {
+                // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
+                var comparerType = typeof(AutoEqualityComparer<>).MakeGenericType(propertyType);
+                comparer = Activator.CreateInstance(comparerType) as IEqualityComparer;
+            }
+
+            return comparer;
         }
 
         private static bool ImplementsIEnumerable(Type type)
@@ -202,49 +218,20 @@
                 .Contains(typeof(IEnumerable));
         }
 
+        private static bool ImplementsIEquatable(Type type)
+        {
+            return type
+                .GetInterfaces()
+                .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEquatable<>));
+        }
+
         private bool CompareProperties(T x, T y)
         {
             var result = true;
 
             foreach (var property in this.properties)
             {
-                IEqualityComparer comparer;
-
-                // If the type implements IEquatable<T>, use this for a comparison.  This handles the language type, e.g. string, int, etc.
-                if (ImplementsIEquatable(property.PropertyType))
-                {
-                    comparer = DefaultComparer;
-                }
-                else if (ImplementsIEnumerable(property.PropertyType))
-                {
-                    var xEnumerator = ((IEnumerable)property.GetValue(x)).GetEnumerator();
-                    var yEnumerator = ((IEnumerable)property.GetValue(y)).GetEnumerator();
-                    bool xHasValue;
-                    bool yHasValue;
-
-                    do
-                    {
-                        xHasValue = xEnumerator.MoveNext();
-                        yHasValue = yEnumerator.MoveNext();
-
-                        // If either item does not have a value, then the enumerable is a different size and therefore not matching.
-                        result = xHasValue == yHasValue;
-
-                        if (result)
-                        {
-                            // Compart the current obkects.
-                        }
-                    }
-                    while (!result || !xHasValue);
-
-                    comparer = null;
-                }
-                else
-                {
-                    // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
-                    var comparerType = typeof(AutoEqualityComparer<>).MakeGenericType(property.PropertyType);
-                    comparer = Activator.CreateInstance(comparerType) as IEqualityComparer;
-                }
+                var comparer = GetComparerForType(property.PropertyType);
 
                 if (!comparer.Equals(property.GetValue(x), property.GetValue(y)))
                 {

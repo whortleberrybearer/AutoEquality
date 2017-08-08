@@ -9,6 +9,8 @@
 
     public class EnumerableTests
     {
+        // TODO: Need to test for non generic enumerable.  Also check for multiple generic arguements (dictionary?)
+
         [Theory]
         [InlineAutoData]
         public void DifferentLengthsShouldBeFalse(IEnumerable<string> values, AutoEqualityComparer<EnumerableClass> sut)
@@ -46,23 +48,23 @@
             result.ShouldBeFalse();
         }
 
-        [Theory]
-        [InlineAutoData]
-        public void MatchingDeepEnumerableValuesShouldBeTrue(AutoEqualityComparer<DeepEnumerableClass> sut)
-        {
-            var result = sut.Equals(deepEnumerableClass1, deepEnumerableClass2);
+        //[Theory]
+        //[InlineAutoData]
+        //public void MatchingDeepEnumerableValuesShouldBeTrue(AutoEqualityComparer<DeepEnumerableClass> sut)
+        //{
+        //    var result = sut.Equals(deepEnumerableClass1, deepEnumerableClass2);
 
-            result.ShouldBeTrue();
-        }
+        //    result.ShouldBeTrue();
+        //}
 
-        [Theory]
-        [InlineAutoData]
-        public void NonMatchingDeepEnumerableValuesShouldBeFalse(AutoEqualityComparer<DeepEnumerableClass> sut)
-        {
-            var result = sut.Equals(deepEnumerableClass1, deepEnumerableClass2);
+        //[Theory]
+        //[InlineAutoData]
+        //public void NonMatchingDeepEnumerableValuesShouldBeFalse(AutoEqualityComparer<DeepEnumerableClass> sut)
+        //{
+        //    var result = sut.Equals(deepEnumerableClass1, deepEnumerableClass2);
 
-            result.ShouldBeFalse();
-        }
+        //    result.ShouldBeFalse();
+        //}
 
         public class InAnyOrderTests
         {

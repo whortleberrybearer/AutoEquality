@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="AutoEqualityComparer.cs" />
     <Compile Include="DefaultEqualityComparer.cs" />
+    <Compile Include="EnumerableComparer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
