@@ -1,14 +1,19 @@
 ﻿namespace AutoEquality
 {
     using System.Collections;
+    using System.Linq;
 
+    // Due to the reflection in the auto comparer, the IEqualityComparer and any IEnumerable instances are all of a non-generic type.  However,
+    // due to the use in the AutoEqualityClass, all items will be the same type and will match the type of the typeComparer.
     internal class EnumerableComparer : IEqualityComparer
     {
         private IEqualityComparer typeComparer;
+        private bool inAnyOrder;
 
-        internal EnumerableComparer(IEqualityComparer typeComparer)
+        internal EnumerableComparer(IEqualityComparer typeComparer, bool inAnyOrder)
         {
             this.typeComparer = typeComparer;
+            this.inAnyOrder = inAnyOrder;
         }
 
         public new bool Equals(object x, object y)

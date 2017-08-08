@@ -17,7 +17,7 @@
     public class AutoEqualityComparer<T> : IEqualityComparer, IEqualityComparer<T>
     {
         private static readonly DefaultEqualityComparer DefaultComparer = new DefaultEqualityComparer();
-        private List<PropertyInfo> properties = new List<PropertyInfo>();
+        private Dictionary<string, PropertyConfiguration> properties = new Dictionary<string, PropertyConfiguration>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutoEqualityComparer{T}"/> class.
@@ -84,10 +84,10 @@
         {
             var result = 0;
 
-            foreach (var property in this.properties)
+            foreach (var property in this.properties.Values)
             {
                 // I don't think this is a good way of doing this, but its a start.
-                result ^= property.GetValue(obj).GetHashCode();
+                result ^= property.PropertyInfo.GetValue(obj).GetHashCode();
             }
 
             return result;
@@ -117,17 +117,19 @@
                 throw new ArgumentNullException(nameof(withProperty));
             }
 
-            var memberInfo = FindPropertyInfo(withProperty);
-
-            if (!this.properties.Any(a => a.Name == memberInfo.Name))
-            {
-                this.properties.Add(memberInfo);
-            }
+            this.AddToPropertiesIfRequired(FindPropertyInfo(withProperty));
         }
 
-        public void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> includedProperty, bool inAnyOrder)
+        public void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> withProperty, bool inAnyOrder)
         {
-            throw new NotImplementedException();
+            if (withProperty == null)
+            {
+                throw new ArgumentNullException(nameof(withProperty));
+            }
+
+            var propertyInfo = FindPropertyInfo(withProperty);
+
+            this.AddToPropertiesIfRequired(propertyInfo, new EnumerablePropertyConfiguration() { InAnyOrder = inAnyOrder });
         }
 
         /// <summary>
@@ -135,19 +137,9 @@
         /// </summary>
         public void WithAll()
         {
-            if (!this.properties.Any())
+            foreach (var propertyInfo in typeof(T).GetProperties())
             {
-                this.properties.AddRange(typeof(T).GetProperties());
-            }
-            else
-            {
-                foreach (var propertyInfo in typeof(T).GetProperties())
-                {
-                    if (!this.properties.Any(a => a.Name == propertyInfo.Name))
-                    {
-                        this.properties.Add(propertyInfo);
-                    }
-                }
+                this.AddToPropertiesIfRequired(propertyInfo);
             }
         }
 
@@ -163,15 +155,7 @@
                 throw new ArgumentNullException(nameof(withoutProperty));
             }
 
-            foreach (var property in this.properties)
-            {
-                if (property.Name == FindPropertyInfo(withoutProperty).Name)
-                {
-                    this.properties.Remove(property);
-
-                    break;
-                }
-            }
+            this.properties.Remove(FindPropertyInfo(withoutProperty).Name);
         }
 
         /// <summary>
@@ -188,7 +172,7 @@
             return ((expression as LambdaExpression).Body as MemberExpression).Member as PropertyInfo;
         }
 
-        private static IEqualityComparer GetComparerForType(Type propertyType)
+        private static IEqualityComparer GetComparerForType(Type propertyType, PropertyConfiguration propertyConfiguration)
         {
             IEqualityComparer comparer;
 
@@ -199,7 +183,13 @@
             }
             else if (ImplementsIEnumerable(propertyType))
             {
-                comparer = new EnumerableComparer(GetComparerForType(propertyType.GenericTypeArguments.First()));
+                // THe configuration may be defined for the enumerable.  If it is, extract the values.
+                var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
+
+                // TODO: Need to handle the genrric.first.
+                comparer = new EnumerableComparer(
+                    GetComparerForType(propertyType.GenericTypeArguments.First(), propertyConfiguration),
+                    enumerablePropertyConfiguration != null ? enumerablePropertyConfiguration.InAnyOrder : false);
             }
             else
             {
@@ -225,15 +215,30 @@
                 .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEquatable<>));
         }
 
+        private void AddToPropertiesIfRequired(PropertyInfo propertyInfo, PropertyConfiguration propertyConfiguration = null)
+        {
+            if (!this.properties.ContainsKey(propertyInfo.Name))
+            {
+                if (propertyConfiguration == null)
+                {
+                    propertyConfiguration = new PropertyConfiguration();
+                }
+
+                propertyConfiguration.PropertyInfo = propertyInfo;
+
+                this.properties.Add(propertyInfo.Name, propertyConfiguration);
+            }
+        }
+
         private bool CompareProperties(T x, T y)
         {
             var result = true;
 
-            foreach (var property in this.properties)
+            foreach (var propertyConfiguration in this.properties.Values)
             {
-                var comparer = GetComparerForType(property.PropertyType);
+                var comparer = GetComparerForType(propertyConfiguration.PropertyInfo.PropertyType, propertyConfiguration);
 
-                if (!comparer.Equals(property.GetValue(x), property.GetValue(y)))
+                if (!comparer.Equals(propertyConfiguration.PropertyInfo.GetValue(x), propertyConfiguration.PropertyInfo.GetValue(y)))
                 {
                     result = false;
 
