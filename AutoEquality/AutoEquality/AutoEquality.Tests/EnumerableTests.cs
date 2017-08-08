@@ -38,6 +38,32 @@
 
         [Theory]
         [InlineAutoData]
+        public void MatchingMultiPropertyEnumerableValuesShouldBeTrue(string value1, string value2, string value3, string value4, string value5, string value6, AutoEqualityComparer<EnumerableMultiPropertyClass> sut)
+        {
+            var multiPropertyEnumerableClass1 = new EnumerableMultiPropertyClass()
+            {
+                Enumerable = new MultiPropertyClass[]
+                {
+                    new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 },
+                    new MultiPropertyClass() { Property1 = value4, Property2 = value5, Property3 = value6 }
+                }
+            };
+            var multiPropertyEnumerableClass2 = new EnumerableMultiPropertyClass()
+            {
+                Enumerable = new MultiPropertyClass[]
+                {
+                    new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 },
+                    new MultiPropertyClass() { Property1 = value4, Property2 = value5, Property3 = value6 }
+                }
+            };
+
+            var result = sut.Equals(multiPropertyEnumerableClass1, multiPropertyEnumerableClass2);
+
+            result.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineAutoData]
         public void NonMatchingEnumerableValuesShouldBeFalse(IEnumerable<string> values, AutoEqualityComparer<EnumerableClass> sut)
         {
             var enumerableClass1 = new EnumerableClass() { Enumerable = values.Select(a => a.ToLower()) };
@@ -48,23 +74,31 @@
             result.ShouldBeFalse();
         }
 
-        //[Theory]
-        //[InlineAutoData]
-        //public void MatchingDeepEnumerableValuesShouldBeTrue(AutoEqualityComparer<DeepEnumerableClass> sut)
-        //{
-        //    var result = sut.Equals(deepEnumerableClass1, deepEnumerableClass2);
+        [Theory]
+        [InlineAutoData]
+        public void NonMatchingMultiPropertyEnumerableValuesShouldBeFalse(string value1, string value2, string value3, string value4, string value5, string value6, AutoEqualityComparer<EnumerableMultiPropertyClass> sut)
+        {
+            var multiPropertyEnumerableClass1 = new EnumerableMultiPropertyClass()
+            {
+                Enumerable = new MultiPropertyClass[]
+                {
+                    new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 },
+                    new MultiPropertyClass() { Property1 = value4, Property2 = value5.ToLower(), Property3 = value6 }
+                }
+            };
+            var multiPropertyEnumerableClass2 = new EnumerableMultiPropertyClass()
+            {
+                Enumerable = new MultiPropertyClass[]
+                {
+                    new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 },
+                    new MultiPropertyClass() { Property1 = value4, Property2 = value5.ToUpper(), Property3 = value6 }
+                }
+            };
 
-        //    result.ShouldBeTrue();
-        //}
+            var result = sut.Equals(multiPropertyEnumerableClass1, multiPropertyEnumerableClass2);
 
-        //[Theory]
-        //[InlineAutoData]
-        //public void NonMatchingDeepEnumerableValuesShouldBeFalse(AutoEqualityComparer<DeepEnumerableClass> sut)
-        //{
-        //    var result = sut.Equals(deepEnumerableClass1, deepEnumerableClass2);
-
-        //    result.ShouldBeFalse();
-        //}
+            result.ShouldBeFalse();
+        }
 
         public class InAnyOrderTests
         {

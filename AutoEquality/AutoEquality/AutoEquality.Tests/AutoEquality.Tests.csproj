@@ -73,6 +73,7 @@
     <Compile Include="HelperClasses\DeepClass1.cs" />
     <Compile Include="HelperClasses\DeepClass2.cs" />
     <Compile Include="DeepClassTests.cs" />
+    <Compile Include="HelperClasses\EnumerableMultiPropertyClass.cs" />
     <Compile Include="HelperClasses\MultiPropertyClass.cs" />
     <Compile Include="NullCheckingTests.cs" />
     <Compile Include="EnumerableTests.cs" />
