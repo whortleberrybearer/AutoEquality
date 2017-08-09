@@ -1,5 +1,6 @@
 ﻿namespace AutoEquality
 {
+    using System;
     using System.Collections;
     using System.Linq;
 
@@ -7,8 +8,8 @@
     // due to the use in the AutoEqualityClass, all items will be the same type and will match the type of the typeComparer.
     internal class EnumerableComparer : IEqualityComparer
     {
-        private IEqualityComparer typeComparer;
         private bool inAnyOrder;
+        private IEqualityComparer typeComparer;
 
         internal EnumerableComparer(IEqualityComparer typeComparer, bool inAnyOrder)
         {
@@ -18,26 +19,26 @@
 
         public new bool Equals(object x, object y)
         {
-            var result = true;
-            var xEnumerator = ((IEnumerable)x).GetEnumerator();
-            var yEnumerator = ((IEnumerable)y).GetEnumerator();
-            bool xHasValue;
-            bool yHasValue;
+            // Converting to an array list makes it easier to track if there are multiple elements that are duplicated as they can
+            // be removed from the list.
+            var xArrayList = MakeArrayList((IEnumerable)x);
+            var yArrayList = MakeArrayList((IEnumerable)y);
 
-            do
+            // Quick escape check.  If they are not the same length, the are not equal.
+            var result = xArrayList.Count == yArrayList.Count;
+
+            if (result)
             {
-                xHasValue = xEnumerator.MoveNext();
-                yHasValue = yEnumerator.MoveNext();
-
-                // If either item does not have a value, then the enumerable is a different size and therefore not matching.
-                result = xHasValue == yHasValue;
-
-                if (result && xHasValue)
+                for (var i = 0; i < xArrayList.Count; i++)
                 {
-                    result = this.typeComparer.Equals(xEnumerator.Current, yEnumerator.Current);
+                    if (!this.typeComparer.Equals(xArrayList[i], yArrayList[i]))
+                    {
+                        result = false;
+
+                        break;
+                    }
                 }
             }
-            while (result && xHasValue);
 
             return result;
         }
@@ -52,6 +53,18 @@
             }
 
             return result;
+        }
+
+        private static ArrayList MakeArrayList(IEnumerable enumerable)
+        {
+            var arrayList = new ArrayList();
+
+            foreach (var obj in enumerable)
+            {
+                arrayList.Add(obj);
+            }
+
+            return arrayList;
         }
     }
 }
