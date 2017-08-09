@@ -219,15 +219,17 @@
         {
             if (!this.properties.ContainsKey(propertyInfo.Name))
             {
-                if (propertyConfiguration == null)
-                {
-                    propertyConfiguration = new PropertyConfiguration();
-                }
-
-                propertyConfiguration.PropertyInfo = propertyInfo;
-
-                this.properties.Add(propertyInfo.Name, propertyConfiguration);
+                this.properties.Add(propertyInfo.Name, null);
             }
+
+            if (propertyConfiguration == null)
+            {
+                propertyConfiguration = new PropertyConfiguration();
+            }
+
+            propertyConfiguration.PropertyInfo = propertyInfo;
+
+            this.properties[propertyInfo.Name] = propertyConfiguration;
         }
 
         private bool CompareProperties(T x, T y)

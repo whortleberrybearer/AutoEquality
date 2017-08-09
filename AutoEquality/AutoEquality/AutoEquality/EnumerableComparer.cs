@@ -31,10 +31,28 @@
             {
                 for (var i = 0; i < xArrayList.Count; i++)
                 {
-                    if (!this.typeComparer.Equals(xArrayList[i], yArrayList[i]))
+                    if (!this.inAnyOrder)
                     {
-                        result = false;
+                        result = this.typeComparer.Equals(xArrayList[i], yArrayList[i]);
+                    }
+                    else
+                    {
+                        // Cant use ArrayList.Contains as need to use the comparer to match equality.
+                        var yIndex = this.FindItemInArray(xArrayList[i], yArrayList);
 
+                        if (yIndex > -1)
+                        {
+                            // Remove the item from the list to prevent false matches due to duplicate items in the list.
+                            yArrayList.RemoveAt(yIndex);
+                        }
+                        else
+                        {
+                            result = false;
+                        }
+                    }
+
+                    if (!result)
+                    {
                         break;
                     }
                 }
@@ -65,6 +83,23 @@
             }
 
             return arrayList;
+        }
+
+        private int FindItemInArray(object obj, ArrayList arrayList)
+        {
+            var result = -1;
+
+            for (var i = 0; i < arrayList.Count; i++)
+            {
+                if (this.typeComparer.Equals(obj, arrayList[i]))
+                {
+                    result = i;
+
+                    break;
+                }
+            }
+
+            return result;
         }
     }
 }
