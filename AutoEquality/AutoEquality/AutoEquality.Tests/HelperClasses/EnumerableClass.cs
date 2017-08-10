@@ -1,9 +1,9 @@
 ﻿namespace AutoEquality.Tests.HelperClasses
 {
-    using System.Collections.Generic;
+    using System.Collections;
 
     public class EnumerableClass
     {
-        public IEnumerable<string> Enumerable { get; set; }
+        public IEnumerable Enumerable { get; set; }
     }
 }

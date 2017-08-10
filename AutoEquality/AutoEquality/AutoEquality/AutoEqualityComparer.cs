@@ -183,12 +183,30 @@
             }
             else if (ImplementsIEnumerable(propertyType))
             {
-                // THe configuration may be defined for the enumerable.  If it is, extract the values.
+                Type elementType;
+
+                if (propertyType.IsGenericType)
+                {
+                    // TODO: Need to handle the genrric.first.
+                    elementType = propertyType.GenericTypeArguments.First();
+                }
+                else
+                {
+                    elementType = propertyType.GetElementType();
+
+                    // If the property is just an IEnumerable, it will not be possible to determine the type of the elements contained
+                    // within it.  Just use object as the type comparer.
+                    if (elementType == null)
+                    {
+                        elementType = typeof(object);
+                    }
+                }
+
+                // The configuration may be defined for the enumerable.  If it is, extract the values.
                 var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
 
-                // TODO: Need to handle the genrric.first.
                 comparer = new EnumerableComparer(
-                    GetComparerForType(propertyType.GenericTypeArguments.First(), propertyConfiguration),
+                    GetComparerForType(elementType, propertyConfiguration),
                     enumerablePropertyConfiguration != null ? enumerablePropertyConfiguration.InAnyOrder : false);
             }
             else
@@ -203,9 +221,7 @@
 
         private static bool ImplementsIEnumerable(Type type)
         {
-            return type
-                .GetInterfaces()
-                .Contains(typeof(IEnumerable));
+            return type == typeof(IEnumerable) || type.GetInterfaces().Contains(typeof(IEnumerable));
         }
 
         private static bool ImplementsIEquatable(Type type)
