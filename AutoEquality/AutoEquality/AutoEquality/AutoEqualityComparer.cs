@@ -191,6 +191,26 @@
             this.properties.Clear();
         }
 
+        /// <summary>
+        /// Removes the comparer for the given type.
+        /// </summary>
+        /// <param name="comparerType">The type of the comparer to remove.</param>
+        /// <exception cref="System.ArgumentNullException">If <paramref name="comparerType"/> is null.</exception>
+        public void WithoutComparer(Type comparerType)
+        {
+            if (comparerType == null)
+            {
+                throw new ArgumentNullException(nameof(comparerType));
+            }
+
+            // Need to find the type of the IEqualityComparer<T> passed into this methods as that is the key to the dictionary.
+            // If it does not implement that interface, it will not exist in the list, so we dont need to worrk about it.
+            if (ImplementsIEqualityComparer(comparerType))
+            {
+                this.typeComparers.Remove(comparerType.GenericTypeArguments.First());
+            }
+        }
+
         private static PropertyInfo FindPropertyInfo(Expression expression)
         {
             // TODO: Need to handle this better.
@@ -200,6 +220,13 @@
         private static bool ImplementsIEnumerable(Type type)
         {
             return type == typeof(IEnumerable) || type.GetInterfaces().Contains(typeof(IEnumerable));
+        }
+
+        private static bool ImplementsIEqualityComparer(Type type)
+        {
+            return type
+                .GetInterfaces()
+                .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEqualityComparer<>));
         }
 
         private static bool ImplementsIEquatable(Type type)
