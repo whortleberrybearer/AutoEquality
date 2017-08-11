@@ -46,6 +46,7 @@
     <Compile Include="AutoEqualityComparer.cs" />
     <Compile Include="DefaultEqualityComparer.cs" />
     <Compile Include="EnumerableComparer.cs" />
+    <Compile Include="EqualityComparerWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EnumerablePropertyConfiguration.cs" />
     <Compile Include="PropertyConfiguration.cs" />
