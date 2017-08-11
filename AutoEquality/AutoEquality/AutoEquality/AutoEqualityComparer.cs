@@ -17,7 +17,7 @@
     public class AutoEqualityComparer<T> : IEqualityComparer, IEqualityComparer<T>
     {
         private static readonly DefaultEqualityComparer DefaultComparer = new DefaultEqualityComparer();
-        private List<PropertyInfo> properties = new List<PropertyInfo>();
+        private Dictionary<string, PropertyConfiguration> properties = new Dictionary<string, PropertyConfiguration>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutoEqualityComparer{T}"/> class.
@@ -84,10 +84,10 @@
         {
             var result = 0;
 
-            foreach (var property in this.properties)
+            foreach (var property in this.properties.Values)
             {
                 // I don't think this is a good way of doing this, but its a start.
-                result ^= property.GetValue(obj).GetHashCode();
+                result ^= property.PropertyInfo.GetValue(obj).GetHashCode();
             }
 
             return result;
@@ -117,12 +117,19 @@
                 throw new ArgumentNullException(nameof(withProperty));
             }
 
-            var memberInfo = FindPropertyInfo(withProperty);
+            this.AddToPropertiesIfRequired(FindPropertyInfo(withProperty));
+        }
 
-            if (!this.properties.Any(a => a.Name == memberInfo.Name))
+        public void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> withProperty, bool inAnyOrder)
+        {
+            if (withProperty == null)
             {
-                this.properties.Add(memberInfo);
+                throw new ArgumentNullException(nameof(withProperty));
             }
+
+            var propertyInfo = FindPropertyInfo(withProperty);
+
+            this.AddToPropertiesIfRequired(propertyInfo, new EnumerablePropertyConfiguration() { InAnyOrder = inAnyOrder });
         }
 
         /// <summary>
@@ -130,19 +137,9 @@
         /// </summary>
         public void WithAll()
         {
-            if (!this.properties.Any())
+            foreach (var propertyInfo in typeof(T).GetProperties())
             {
-                this.properties.AddRange(typeof(T).GetProperties());
-            }
-            else
-            {
-                foreach (var propertyInfo in typeof(T).GetProperties())
-                {
-                    if (!this.properties.Any(a => a.Name == propertyInfo.Name))
-                    {
-                        this.properties.Add(propertyInfo);
-                    }
-                }
+                this.AddToPropertiesIfRequired(propertyInfo);
             }
         }
 
@@ -158,15 +155,7 @@
                 throw new ArgumentNullException(nameof(withoutProperty));
             }
 
-            foreach (var property in this.properties)
-            {
-                if (property.Name == FindPropertyInfo(withoutProperty).Name)
-                {
-                    this.properties.Remove(property);
-
-                    break;
-                }
-            }
+            this.properties.Remove(FindPropertyInfo(withoutProperty).Name);
         }
 
         /// <summary>
@@ -183,6 +172,59 @@
             return ((expression as LambdaExpression).Body as MemberExpression).Member as PropertyInfo;
         }
 
+        private static IEqualityComparer GetComparerForType(Type propertyType, PropertyConfiguration propertyConfiguration)
+        {
+            IEqualityComparer comparer;
+
+            // If the type implements IEquatable<T>, use this for a comparison.  This handles the language type, e.g. string, int, etc.
+            // Also, if comparing a type of object, the AutoComparer will return true for all items due to not having any properties to match, so using
+            // the default comparer makes more sense.
+            if (ImplementsIEquatable(propertyType) || (propertyType == typeof(object)))
+            {
+                comparer = DefaultComparer;
+            }
+            else if (ImplementsIEnumerable(propertyType))
+            {
+                Type elementType;
+
+                if (propertyType.IsGenericType)
+                {
+                    elementType = propertyType.GenericTypeArguments.First();
+                }
+                else
+                {
+                    elementType = propertyType.GetElementType();
+
+                    // If the property is just an IEnumerable, it will not be possible to determine the type of the elements contained
+                    // within it.  Just use object as the type comparer.
+                    if (elementType == null)
+                    {
+                        elementType = typeof(object);
+                    }
+                }
+
+                // The configuration may be defined for the enumerable.  If it is, extract the values.
+                var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
+
+                comparer = new EnumerableComparer(
+                    GetComparerForType(elementType, propertyConfiguration),
+                    enumerablePropertyConfiguration != null ? enumerablePropertyConfiguration.InAnyOrder : false);
+            }
+            else
+            {
+                // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
+                var comparerType = typeof(AutoEqualityComparer<>).MakeGenericType(propertyType);
+                comparer = Activator.CreateInstance(comparerType) as IEqualityComparer;
+            }
+
+            return comparer;
+        }
+
+        private static bool ImplementsIEnumerable(Type type)
+        {
+            return type == typeof(IEnumerable) || type.GetInterfaces().Contains(typeof(IEnumerable));
+        }
+
         private static bool ImplementsIEquatable(Type type)
         {
             return type
@@ -190,27 +232,32 @@
                 .Any(a => a.IsGenericType && a.GetGenericTypeDefinition() == typeof(IEquatable<>));
         }
 
+        private void AddToPropertiesIfRequired(PropertyInfo propertyInfo, PropertyConfiguration propertyConfiguration = null)
+        {
+            if (!this.properties.ContainsKey(propertyInfo.Name))
+            {
+                this.properties.Add(propertyInfo.Name, null);
+            }
+
+            if (propertyConfiguration == null)
+            {
+                propertyConfiguration = new PropertyConfiguration();
+            }
+
+            propertyConfiguration.PropertyInfo = propertyInfo;
+
+            this.properties[propertyInfo.Name] = propertyConfiguration;
+        }
+
         private bool CompareProperties(T x, T y)
         {
             var result = true;
 
-            foreach (var property in this.properties)
+            foreach (var propertyConfiguration in this.properties.Values)
             {
-                IEqualityComparer comparer;
+                var comparer = GetComparerForType(propertyConfiguration.PropertyInfo.PropertyType, propertyConfiguration);
 
-                // If the type implements IEquatable<T>, use this for a comparison.  This handles the language type, e.g. string, int, etc.
-                if (ImplementsIEquatable(property.PropertyType))
-                {
-                    comparer = DefaultComparer;
-                }
-                else
-                {
-                    // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
-                    var comparerType = typeof(AutoEqualityComparer<>).MakeGenericType(property.PropertyType);
-                    comparer = Activator.CreateInstance(comparerType) as IEqualityComparer;
-                }
-
-                if (!comparer.Equals(property.GetValue(x), property.GetValue(y)))
+                if (!comparer.Equals(propertyConfiguration.PropertyInfo.GetValue(x), propertyConfiguration.PropertyInfo.GetValue(y)))
                 {
                     result = false;
 
