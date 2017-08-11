@@ -1,5 +1,7 @@
 ﻿namespace AutoEquality.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using AutoEquality.Tests.HelperClasses;
     using Ploeh.AutoFixture.Xunit2;
     using Shouldly;
@@ -7,6 +9,7 @@
 
     public class TypeComparerTests
     {
+        // TODO: Without comparer tests.
         [Theory]
         [InlineAutoData]
         public void MatchingTypeShouldBeTrue(string value1, string value2, string value3, string value4, AutoEqualityComparer<DeepClass2> typeComparer, AutoEqualityComparer<DeepClass1> sut)
@@ -39,6 +42,13 @@
             var result = sut.Equals(deepClass1, deepClass2);
 
             result.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineAutoData]
+        public void NullComparerShouldThrowArguementNullException(AutoEqualityComparer<object> sut)
+        {
+            Should.Throw<ArgumentNullException>(() => sut.WithComparer((IEqualityComparer<string>)null));
         }
     }
 }
