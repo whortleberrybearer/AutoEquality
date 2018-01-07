@@ -114,7 +114,7 @@
         /// <param name="inAnyOrder">If the sequence of <paramref name="withProperty"/> can be in any order.</param>
         /// <param name="comparer">A comparer to use for this property.</param>
         /// <exception cref="System.ArgumentNullException">If <paramref name="withProperty"/> is null.</exception>
-        protected void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> withProperty, bool inAnyOrder, IEqualityComparer<TProperty> comparer = null)
+        protected void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> withProperty, bool inAnyOrder = false, IEqualityComparer<TProperty> comparer = null)
         {
             if (withProperty == null)
             {
@@ -270,7 +270,30 @@
 
         private IEqualityComparer GetComparerForProperty(PropertyConfiguration propertyConfiguration)
         {
-            return propertyConfiguration.Comparer ?? this.GetComparerForType(propertyConfiguration.PropertyInfo.PropertyType, propertyConfiguration);
+            IEqualityComparer comparer;
+
+            if (propertyConfiguration.Comparer != null)
+            {
+                // The property type on an enumerable property is the containing type, so can build an enumerable comparer from these details.
+                if (ImplementsIEnumerable(propertyConfiguration.PropertyInfo.PropertyType))
+                {
+                    var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
+
+                    comparer = new EnumerableComparer(
+                        propertyConfiguration.Comparer,
+                        enumerablePropertyConfiguration != null ? enumerablePropertyConfiguration.InAnyOrder : false);
+                }
+                else
+                {
+                    comparer = propertyConfiguration.Comparer;
+                }
+            }
+            else
+            {
+                comparer = this.GetComparerForType(propertyConfiguration.PropertyInfo.PropertyType, propertyConfiguration);
+            }
+
+            return comparer;
         }
 
         private IEqualityComparer GetComparerForType(Type propertyType, PropertyConfiguration propertyConfiguration)

@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HelperClasses\ArrayClass.cs" />
+    <Compile Include="HelperClasses\EnumerableDeepClass1.cs" />
     <Compile Include="HelperClasses\DeepClass1.cs" />
     <Compile Include="HelperClasses\DeepClass2.cs" />
     <Compile Include="DeepClassTests.cs" />

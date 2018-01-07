@@ -45,7 +45,7 @@
         /// <param name="inAnyOrder">If the sequence of <paramref name="withProperty"/> can be in any order.</param>
         /// <param name="comparer">A comparer to use for this property.</param>
         /// <exception cref="System.ArgumentNullException">If <paramref name="withProperty"/> is null.</exception>
-        public new void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> withProperty, bool inAnyOrder, IEqualityComparer<TProperty> comparer = null)
+        public new void With<TProperty>(Expression<Func<T, IEnumerable<TProperty>>> withProperty, bool inAnyOrder = false, IEqualityComparer<TProperty> comparer = null)
         {
             base.With(withProperty, inAnyOrder, comparer);
         }
