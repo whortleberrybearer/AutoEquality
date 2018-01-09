@@ -255,13 +255,22 @@
 
             foreach (var propertyConfiguration in this.properties.Values)
             {
+                // Need to check if we have already processed the object, otherwise will cause a stack overflow exception.  If it has already been
+                // processed, then can just skip checking as we know it is already valid or still in the process of being compared.
                 var comparer = this.GetComparerForProperty(propertyConfiguration);
+                var xValue = propertyConfiguration.PropertyInfo.GetValue(x);
+                var yValue = propertyConfiguration.PropertyInfo.GetValue(y);
 
-                if (!comparer.Equals(propertyConfiguration.PropertyInfo.GetValue(x), propertyConfiguration.PropertyInfo.GetValue(y)))
+                //if (!PropertiesAlreadyCompared(xValue, yValue, comparer))
                 {
-                    result = false;
+                    //AddComparisonToList(xValue, yValue, comparer);
 
-                    break;
+                    if (!comparer.Equals(xValue, yValue))
+                    {
+                        result = false;
+
+                        break;
+                    }
                 }
             }
 

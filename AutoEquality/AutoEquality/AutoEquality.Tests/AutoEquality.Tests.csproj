@@ -70,7 +70,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CircularReferenceTests.cs" />
     <Compile Include="HelperClasses\ArrayClass.cs" />
+    <Compile Include="HelperClasses\EnumerableCircularClass.cs" />
+    <Compile Include="HelperClasses\CircularClass.cs" />
     <Compile Include="HelperClasses\EnumerableDeepClass1.cs" />
     <Compile Include="HelperClasses\DeepClass1.cs" />
     <Compile Include="HelperClasses\DeepClass2.cs" />
