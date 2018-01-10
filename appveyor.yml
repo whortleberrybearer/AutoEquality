@@ -9,11 +9,11 @@ test:
   assemblies:
     only:
     - '**\AutoEquality.Tests.dll'
-deploy:
+deploy:  
+  tag: $(APPVEYOR_REPO_TAG_NAME)
+  release: $(APPVEYOR_REPO_TAG_NAME)
 - provider: NuGet
   api_key:
     secure: mz2Md18V4SvLjudum8Il2cTPAw6sg5gk5vvbCjhkgiDSimLGww3xBSFqHTHol0Zs
-  skip_symbols: false
   on:
-    branch: master
     appveyor_repo_tag: true
