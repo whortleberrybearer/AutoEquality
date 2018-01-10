@@ -6,6 +6,25 @@ branches:
   only:
     - master
 
+init:
+  # Set "build version number" to "short-commit-hash" or when tagged to "tag name" (Travis style)
+  - ps: >-
+      if ($env:APPVEYOR_REPO_TAG -eq "true")
+      {
+          Update-AppveyorBuild -Version "$($env:APPVEYOR_REPO_TAG_NAME.TrimStart("v"))"
+      }
+      else
+      {
+          Update-AppveyorBuild -Version "dev-$($env:APPVEYOR_REPO_COMMIT.Substring(0, 7))"
+      }
+
+assembly_info:
+  patch: true
+  file: '**\AutoEquality\AssemblyInfo.*'
+  assembly_version: $(version)
+  assembly_file_version: $(version)
+  assembly_informational_version: $(version)
+  
 before_build:
 - cmd: nuget restore AutoEquality\AutoEquality\AutoEquality.sln
 
@@ -16,10 +35,9 @@ test:
   assemblies:
     only:
     - '**\AutoEquality.Tests.dll'
+
 deploy:  
-  tag: $(APPVEYOR_REPO_TAG_NAME)
-  release: $(APPVEYOR_REPO_TAG_NAME)
-  provider: NuGet
+- provider: NuGet
   api_key:
     secure: mz2Md18V4SvLjudum8Il2cTPAw6sg5gk5vvbCjhkgiDSimLGww3xBSFqHTHol0Zs
   on:
