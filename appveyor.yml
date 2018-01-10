@@ -2,6 +2,10 @@ version: 1.0.{build}
 image: Visual Studio 2017
 configuration: Release
 
+branches:
+  only:
+    - master
+
 before_build:
 - cmd: nuget restore AutoEquality\AutoEquality\AutoEquality.sln
 
