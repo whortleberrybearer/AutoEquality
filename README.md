@@ -28,3 +28,13 @@ public class Person
     }
 }
 ```
+
+```csharp
+public class NameEqualityComparer : AutoEqualityComparerBase<Person>
+{
+    public NameEqualityComparer()
+    {
+        base.With(a => a.Name);
+    }
+}
+```
