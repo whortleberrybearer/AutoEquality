@@ -17,9 +17,9 @@ init:
 dotnet_csproj:
   patch: true
   file: '**\AutoEquality.csproj'
-  version: '{appveyor_build_version}'
-  package_version: '{appveyor_build_version}'
-  assembly_version: '{appveyor_build_version}'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
   
 before_build:
 - cmd: dotnet restore AutoEquality\AutoEquality\AutoEquality.sln
