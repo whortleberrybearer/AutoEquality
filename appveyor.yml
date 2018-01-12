@@ -22,7 +22,7 @@ dotnet_csproj:
   assembly_version: '{appveyor_build_version}'
   
 before_build:
-- cmd: nuget restore AutoEquality\AutoEquality\AutoEquality.sln
+- cmd: dotnet restore 
 
 build:
   publish_nuget: true
