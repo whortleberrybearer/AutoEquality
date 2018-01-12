@@ -24,6 +24,7 @@ dotnet_csproj:
 before_build:
 - cmd: >-
     dotnet restore AutoEquality\AutoEquality\AutoEquality.sln
+    
     nuget restore AutoEquality\AutoEquality\AutoEquality.sln
 
 build:
