@@ -1,9 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <Version></Version>
     <PackageVersion></PackageVersion>
-    <AssemblyVersion></AssemblyVersion>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>whortleberrybearer</Authors>
+    <Company />
+    <PackageLicenseUrl>https://github.com/whortleberrybearer/AutoEquality/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/whortleberrybearer/AutoEquality</PackageProjectUrl>
+    <Copyright>Copyright 2018</Copyright>
+    <PackageTags>equality comparison</PackageTags>
+    <Description>Simple library to help generate IEqualityComparer instances.</Description>
+    <FileVersion>0.0.0.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1705;SA1652;SA1633</NoWarn>
@@ -12,6 +21,8 @@
     <NoWarn>SA1652;SA1633</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>
