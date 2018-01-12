@@ -14,15 +14,18 @@ init:
           Update-AppveyorBuild -Version "$($env:APPVEYOR_REPO_TAG_NAME.TrimStart("v"))"
       }
 
-assembly_info:
+dotnet_csproj:
   patch: true
-  file: '**\AutoEquality\Properties\AssemblyInfo.*'
-  assembly_version: $(appveyor_build_version)
-  assembly_file_version: $(appveyor_build_version)
-  assembly_informational_version: $(appveyor_build_version)
+  file: '**\AutoEquality.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
   
 before_build:
-- cmd: nuget restore AutoEquality\AutoEquality\AutoEquality.sln
+- cmd: >-
+    dotnet restore AutoEquality\AutoEquality\AutoEquality.sln
+    
+    nuget restore AutoEquality\AutoEquality\AutoEquality.sln
 
 build:
   publish_nuget: true
