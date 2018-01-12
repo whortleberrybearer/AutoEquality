@@ -14,6 +14,7 @@
     /// <typeparam name="T">The type of objects to compare.</typeparam>
     /// <seealso cref="AutoEquality.AutoEqualityComparerBase{T}"/>
     public sealed class AutoEqualityComparer<T> : AutoEqualityComparerBase<T>
+        where T : class
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AutoEqualityComparer{T}"/> class.

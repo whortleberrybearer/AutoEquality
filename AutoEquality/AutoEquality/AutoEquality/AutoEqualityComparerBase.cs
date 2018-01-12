@@ -15,6 +15,7 @@
     /// <seealso cref="System.Collections.Generic.IEqualityComparer{T}"/>
     // Need to implement the non generic version, as this is casted to when handling deep comparisons.
     public abstract class AutoEqualityComparerBase<T> : IEqualityComparer, IEqualityComparer<T>
+        where T : class
     {
         private static readonly DefaultEqualityComparer DefaultComparer = new DefaultEqualityComparer();
         private Dictionary<string, PropertyConfiguration> properties = new Dictionary<string, PropertyConfiguration>();
@@ -55,7 +56,16 @@
         /// <returns><c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.</returns>
         public new bool Equals(object x, object y)
         {
-            return this.Equals((T)x, (T)y);
+            // Need to ensure that both are the correct type, otherwise the "as" command below will convert the values to null, and
+            // the two nulls evaluate to true.
+            var result = (x is T) && (y is T);
+
+            if (result)
+            {
+                result = this.Equals(x as T, y as T);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -83,7 +93,7 @@
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public int GetHashCode(object obj)
         {
-            return this.GetHashCode((T)obj);
+            return this.GetHashCode(obj as T);
         }
 
         /// <summary>
