@@ -1,5 +1,6 @@
 ﻿namespace AutoEquality.Tests
 {
+    using System;
     using AutoEquality.Tests.HelperClasses;
     using Ploeh.AutoFixture.Xunit2;
     using Shouldly;
@@ -9,6 +10,21 @@
     {
         public class WithTests
         {
+            [Theory]
+            [InlineAutoData]
+            [Trait("bug", "13")]
+            public void EnumerablePropertyComparisonShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
+            {
+                var simpleClass1 = new MultiPropertyClass() { Property1 = value1.ToUpper(), Property2 = value2, Property3 = value3 };
+                var simpleClass2 = new MultiPropertyClass() { Property1 = value1.ToLower(), Property2 = value2, Property3 = value3 };
+
+                sut.With(a => a.Property1, StringComparer.CurrentCultureIgnoreCase);
+
+                var result = sut.Equals(simpleClass1, simpleClass2);
+
+                result.ShouldBeTrue();
+            }
+
             [Theory]
             [InlineAutoData]
             public void MatchingEnumerablePropertyShouldBeTrue(

@@ -284,14 +284,15 @@
 
             if (propertyConfiguration.Comparer != null)
             {
-                // The property type on an enumerable property is the containing type, so can build an enumerable comparer from these details.
-                if (ImplementsIEnumerable(propertyConfiguration.PropertyInfo.PropertyType))
-                {
-                    var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
+                // If the propertyConfiguration is an EnumerablePropertyConfiguration, the comparer is for the enumerable type, not
+                // the property type.  In this instance, create an enumerable comparer using the specified comparer.
+                var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
 
+                if (enumerablePropertyConfiguration != null)
+                {
                     comparer = new EnumerableComparer(
                         propertyConfiguration.Comparer,
-                        enumerablePropertyConfiguration != null ? enumerablePropertyConfiguration.InAnyOrder : false);
+                        enumerablePropertyConfiguration.InAnyOrder);
                 }
                 else
                 {
