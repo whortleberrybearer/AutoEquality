@@ -25,6 +25,7 @@
 
             [Theory]
             [InlineAutoData]
+            [Trait("bug", "11")]
             public void NonMatchingTypeShouldBeFalse(MultiPropertyClass simpleClass1, DeepClass1 simpleClass2, AutoEqualityComparer<MultiPropertyClass> sut)
             {
                 var result = sut.Equals(simpleClass1, simpleClass2);
@@ -34,6 +35,7 @@
 
             [Theory]
             [InlineAutoData]
+            [Trait("bug", "11")]
             public void NonMatchingTypesShouldBeFalse(MultiPropertyClass simpleClass1, DeepClass1 simpleClass2, AutoEqualityComparer<ArrayClass> sut)
             {
                 var result = sut.Equals(simpleClass1, simpleClass2);
@@ -56,6 +58,7 @@
 
             [Theory]
             [InlineAutoData]
+            [Trait("bug", "11")]
             public void NullValuesShouldBeFalse(AutoEqualityComparer<object> sut)
             {
                 var result = sut.Equals(null, null);
