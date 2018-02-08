@@ -79,7 +79,8 @@
 
             foreach (var property in this.properties.Values)
             {
-                // I don't think this is a good way of doing this, but its a start.
+                // I don't think this is a good way of doing this, but its a start. 
+                // TODO: Need to use the comparers for the properties.
                 result ^= property.PropertyInfo.GetValue(obj).GetHashCode();
             }
 
@@ -286,9 +287,7 @@
             {
                 // If the propertyConfiguration is an EnumerablePropertyConfiguration, the comparer is for the enumerable type, not
                 // the property type.  In this instance, create an enumerable comparer using the specified comparer.
-                var enumerablePropertyConfiguration = propertyConfiguration as EnumerablePropertyConfiguration;
-
-                if (enumerablePropertyConfiguration != null)
+                if (propertyConfiguration is EnumerablePropertyConfiguration enumerablePropertyConfiguration)
                 {
                     comparer = new EnumerableComparer(
                         propertyConfiguration.Comparer,

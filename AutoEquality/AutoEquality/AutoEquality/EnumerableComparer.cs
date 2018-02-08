@@ -19,43 +19,53 @@
 
         public new bool Equals(object x, object y)
         {
-            // Converting to an array list makes it easier to track if there are multiple elements that are duplicated as they can
-            // be removed from the list.
-            var xArrayList = MakeArrayList((IEnumerable)x);
-            var yArrayList = MakeArrayList((IEnumerable)y);
-
-            // Quick escape check.  If they are not the same length, the are not equal.
-            var result = xArrayList.Count == yArrayList.Count;
+            var result = (x != null) && (y != null);
 
             if (result)
             {
-                for (var i = 0; i < xArrayList.Count; i++)
-                {
-                    if (!this.inAnyOrder)
-                    {
-                        result = this.typeComparer.Equals(xArrayList[i], yArrayList[i]);
-                    }
-                    else
-                    {
-                        // Cant use ArrayList.Contains as need to use the comparer to match equality.
-                        var yIndex = this.FindItemInArray(xArrayList[i], yArrayList);
+                // Converting to an array list makes it easier to track if there are multiple elements that are duplicated as they can
+                // be removed from the list.
+                var xArrayList = MakeArrayList((IEnumerable)x);
+                var yArrayList = MakeArrayList((IEnumerable)y);
 
-                        if (yIndex > -1)
+                // Quick escape check.  If they are not the same length, the are not equal.
+                result = xArrayList.Count == yArrayList.Count;
+
+                if (result)
+                {
+                    for (var i = 0; i < xArrayList.Count; i++)
+                    {
+                        if (!this.inAnyOrder)
                         {
-                            // Remove the item from the list to prevent false matches due to duplicate items in the list.
-                            yArrayList.RemoveAt(yIndex);
+                            result = this.typeComparer.Equals(xArrayList[i], yArrayList[i]);
                         }
                         else
                         {
-                            result = false;
+                            // Cant use ArrayList.Contains as need to use the comparer to match equality.
+                            var yIndex = this.FindItemInArray(xArrayList[i], yArrayList);
+
+                            if (yIndex > -1)
+                            {
+                                // Remove the item from the list to prevent false matches due to duplicate items in the list.
+                                yArrayList.RemoveAt(yIndex);
+                            }
+                            else
+                            {
+                                result = false;
+                            }
+                        }
+
+                        if (!result)
+                        {
+                            break;
                         }
                     }
-
-                    if (!result)
-                    {
-                        break;
-                    }
                 }
+            }
+            else if ((x == null) && (y == null))
+            {
+                // If both items are null, then this is a match.
+                result = true;
             }
 
             return result;
