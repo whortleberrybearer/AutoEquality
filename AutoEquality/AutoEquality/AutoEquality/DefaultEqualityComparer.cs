@@ -8,7 +8,19 @@
     {
         public new bool Equals(object x, object y)
         {
-            return x.Equals(y);
+            bool result;
+
+            if (x != null)
+            {
+                result = x.Equals(y);
+            }
+            else
+            {
+                // If y is also null, then this is a match.
+                result = y == null;
+            }
+
+            return result;
         }
 
         public int GetHashCode(object obj)
