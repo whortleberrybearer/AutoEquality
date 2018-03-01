@@ -17,6 +17,7 @@
     public abstract class AutoEqualityComparerBase<T> : IEqualityComparer, IEqualityComparer<T>
         where T : class
     {
+        private static readonly ComparableEqualityComparer ComparableComparer = new ComparableEqualityComparer();
         private static readonly DefaultEqualityComparer DefaultComparer = new DefaultEqualityComparer();
         private Dictionary<string, PropertyConfiguration> properties = new Dictionary<string, PropertyConfiguration>();
         private Dictionary<Type, IEqualityComparer> typeComparers = new Dictionary<Type, IEqualityComparer>();
@@ -56,8 +57,8 @@
         /// <returns><c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.</returns>
         public new bool Equals(object x, object y)
         {
-            // Need to ensure that both are the correct type, otherwise the "as" command below will convert the values to null, and
-            // the two nulls evaluate to true.
+            // Need to ensure that both are the correct type, otherwise the "as" command below will convert the values to null, and the two
+            // nulls evaluate to true.
             var result = (x is T) && (y is T);
 
             if (result)
@@ -79,7 +80,7 @@
 
             foreach (var property in this.properties.Values)
             {
-                // I don't think this is a good way of doing this, but its a start. 
+                // I don't think this is a good way of doing this, but its a start.
                 // TODO: Need to use the comparers for the properties.
                 result ^= property.PropertyInfo.GetValue(obj).GetHashCode();
             }
@@ -224,6 +225,11 @@
             return ((expression as LambdaExpression).Body as MemberExpression).Member as PropertyInfo;
         }
 
+        private static bool ImplementsIComparable(Type type)
+        {
+            return type == typeof(IComparable) || type.GetInterfaces().Contains(typeof(IComparable));
+        }
+
         private static bool ImplementsIEnumerable(Type type)
         {
             return type == typeof(IEnumerable) || type.GetInterfaces().Contains(typeof(IEnumerable));
@@ -285,8 +291,8 @@
 
             if (propertyConfiguration.Comparer != null)
             {
-                // If the propertyConfiguration is an EnumerablePropertyConfiguration, the comparer is for the enumerable type, not
-                // the property type.  In this instance, create an enumerable comparer using the specified comparer.
+                // If the propertyConfiguration is an EnumerablePropertyConfiguration, the comparer is for the enumerable type, not the
+                // property type. In this instance, create an enumerable comparer using the specified comparer.
                 if (propertyConfiguration is EnumerablePropertyConfiguration enumerablePropertyConfiguration)
                 {
                     comparer = new EnumerableComparer(
@@ -316,6 +322,10 @@
                 if (ImplementsIEquatable(propertyType) || (propertyType == typeof(object)))
                 {
                     comparer = DefaultComparer;
+                }
+                else if (ImplementsIComparable(propertyType))
+                {
+                    comparer = ComparableComparer;
                 }
                 else if (ImplementsIEnumerable(propertyType))
                 {
