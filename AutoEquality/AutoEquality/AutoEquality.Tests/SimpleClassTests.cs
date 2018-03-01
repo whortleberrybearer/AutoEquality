@@ -13,6 +13,19 @@
         {
             [Theory]
             [InlineAutoData]
+            [Trait("bug", "19")]
+            public void MatchingEnumValuesShouldBeTrue(TestEnum value, AutoEqualityComparer<EnumClass> sut)
+            {
+                var enumClass1 = new EnumClass() { Enum = value };
+                var enumClass2 = new EnumClass() { Enum = value };
+
+                var result = sut.Equals(enumClass1, enumClass2);
+
+                result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
             public void MatchingValuesShouldBeTrue(string value1, string value2, string value3, AutoEqualityComparer<MultiPropertyClass> sut)
             {
                 var simpleClass1 = new MultiPropertyClass() { Property1 = value1, Property2 = value2, Property3 = value3 };
@@ -21,6 +34,19 @@
                 var result = sut.Equals(simpleClass1, simpleClass2);
 
                 result.ShouldBeTrue();
+            }
+
+            [Theory]
+            [InlineAutoData]
+            [Trait("bug", "19")]
+            public void NonMatchingEnumValuesShouldBeFalse(AutoEqualityComparer<EnumClass> sut)
+            {
+                var enumClass1 = new EnumClass() { Enum = TestEnum.Value1 };
+                var enumClass2 = new EnumClass() { Enum = TestEnum.Value2 };
+
+                var result = sut.Equals(enumClass1, enumClass2);
+
+                result.ShouldBeFalse();
             }
 
             [Theory]
