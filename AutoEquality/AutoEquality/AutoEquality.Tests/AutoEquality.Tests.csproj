@@ -83,6 +83,7 @@
     <Compile Include="HelperClasses\EnumerableMultiPropertyClass.cs" />
     <Compile Include="HelperClasses\GenericEnumerableClass.cs" />
     <Compile Include="HelperClasses\MultiPropertyClass.cs" />
+    <Compile Include="HelperClasses\NullablePropertyClass.cs" />
     <Compile Include="HelperClasses\TestEnum.cs" />
     <Compile Include="NullCheckingTests.cs" />
     <Compile Include="EnumerableTests.cs" />
