@@ -30,6 +30,19 @@
 
         [Theory]
         [InlineAutoData]
+        [Trait("bug", "21")]
+        public void NonMatchingNullablePropertyShouldBeFalse(int value1, AutoEqualityComparer<NullablePropertyClass> sut)
+        {
+            var nullablePropertyClass1 = new NullablePropertyClass() { Property1 = value1 };
+            var nullablePorpertyClass2 = new NullablePropertyClass() { Property1 = null };
+
+            var result = sut.Equals(nullablePropertyClass1, nullablePorpertyClass2);
+
+            result.ShouldBeFalse();
+        }
+
+        [Theory]
+        [InlineAutoData]
         public void NullArrayPropertiesShouldBeTrue(AutoEqualityComparer<ArrayClass> sut)
         {
             var arrayClass1 = new ArrayClass();

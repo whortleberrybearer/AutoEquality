@@ -319,7 +319,7 @@
                 // If the type implements IEquatable<T>, use this for a comparison. This handles the language type, e.g. string, int, etc.
                 // Also, if comparing a type of object, the AutoComparer will return true for all items due to not having any properties to
                 // match, so using the default comparer makes more sense.
-                if (ImplementsIEquatable(propertyType) || (propertyType == typeof(object)))
+                if (propertyType.IsValueType || ImplementsIEquatable(propertyType) || (propertyType == typeof(object)))
                 {
                     comparer = DefaultComparer;
                 }
@@ -354,6 +354,10 @@
                         this.GetComparerForType(elementType, propertyConfiguration),
                         enumerablePropertyConfiguration != null ? enumerablePropertyConfiguration.InAnyOrder : false);
                 }
+                //else if ()
+                //{
+
+                //}
                 else
                 {
                     // Need to dynamically create a new AutoEqualityComparer from the type of the property currently being processed.
